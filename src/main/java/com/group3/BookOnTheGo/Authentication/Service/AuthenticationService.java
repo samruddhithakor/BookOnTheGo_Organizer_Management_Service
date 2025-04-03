@@ -61,13 +61,9 @@ public class AuthenticationService implements IAuthenticationService {
                                 .build())
                         .build(), HttpStatus.CONFLICT);
             }
-//            if (!Objects.equals(request.getRole(), "User")) {
-//                logger.error("Invalid Role provided in the request which is: {}", request.getRole());
-//                return new ResponseEntity<>(MetaBlogResponse.builder()
-//                        .success(false)
-//                        .message("Invalid Role")
-//                        .build(), HttpStatus.CONFLICT);
-//            }
+        if (Objects.isNull(request.getRole()) || request.getRole().isEmpty()) {
+                logger.error("Invalid Role provided in the request which is: {}", request.getRole());
+            }
 
             var user = User.builder()
                     .username(request.getUsername())
@@ -75,7 +71,7 @@ public class AuthenticationService implements IAuthenticationService {
                     .password(applicationConfig.passwordEncoder().encode(request.getPassword()))
                     .registerAt((double) (System.currentTimeMillis()))
                     .lastLoginTime((double) (System.currentTimeMillis()))
-                    .role(Role.User)
+                    .role(Role.valueOf(request.getRole()))
                     .isEmailVerified(false)
                     .isAccountLocked(false)
                     .isResetPasswordRequested(false)
@@ -116,7 +112,7 @@ public class AuthenticationService implements IAuthenticationService {
                     .data(RegisterResponseDto.builder()
                             .accessToken(accessToken)
                             .refreshToken(refreshToken)
-                            .role("User")
+                            .role("Attendee")
                             .build())
                     .build(), HttpStatus.CREATED);
         } catch (MetaBlogException e) {
